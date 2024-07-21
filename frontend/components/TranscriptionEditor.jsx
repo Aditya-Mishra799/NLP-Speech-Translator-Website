@@ -82,7 +82,7 @@ const TranscriptionEditor = ({
     return () => {
       audioElement.removeEventListener("ended", handleEnded);
     };
-  });
+  }, [audioRef]);
 
   // translate the placeholder and 
   const lodingIndication = (

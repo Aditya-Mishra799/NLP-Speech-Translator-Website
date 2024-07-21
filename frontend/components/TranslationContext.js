@@ -126,7 +126,7 @@ export const TranslationProvider = ({ children }) => {
     if(state.sourceText == ''){
       dispatch({type:SET_DESTINATION_TEXT, payload: ''})
     }
-  }, [state])
+  }, [state.sourceText])
 
   return (
     <TranslationContext.Provider

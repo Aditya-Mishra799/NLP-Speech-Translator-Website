@@ -28,7 +28,10 @@ const MenuLinks = () => {
     >
       {
         Links.map((item) =>{
-            return <NavLink link = {item.link}>{item.name}</NavLink>
+            return <NavLink 
+            link = {item.link}
+            key = {item.name}
+            >{item.name}</NavLink>
         })
       }
     </Stack>
