@@ -1,32 +1,31 @@
-'use client'
-import React, { createContext, useReducer, useRef, useEffect } from 'react';
-import { translateText, getVoiceForText } from '@/common_functions/translationAPIServices';
+"use client";
+import React, { createContext, useReducer, useRef, useEffect, useState } from "react";
+import {
+  translateText,
+  getVoiceForText,
+} from "@/common_functions/translationAPIServices";
 // Initial state
 const initialState = {
-  sourceLanguage: 'en',
-  destinationLanguage: 'hi',
-  sourceText: '',
-  destinationText: '',
-  sourceSpeech: null,
-  destinationSpeech: null,
+  sourceLanguage: "en",
+  destinationLanguage: "hi",
+  sourceText: "",
+  destinationText: "",
   isRecording: false,
   isEditing: false,
-  previousSourceText: '',
   isFetching: false,
 };
 
 // Actions
-const SET_SOURCE_LANGUAGE = 'SET_SOURCE_LANGUAGE';
-const SET_DESTINATION_LANGUAGE = 'SET_DESTINATION_LANGUAGE';
-const SET_SOURCE_TEXT = 'SET_SOURCE_TEXT';
-const SET_DESTINATION_TEXT = 'SET_DESTINATION_TEXT';
-const SET_SOURCE_SPEECH = 'SET_SOURCE_SPEECH';
-const SET_DESTINATION_SPEECH = 'SET_DESTINATION_SPEECH';
-const SET_IS_RECORDING = 'SET_IS_RECORDING';
-const SET_IS_EDITING = 'SET_IS_EDITING';
-const SWAP_LANGUAGES = 'SWAP_LANGUAGES';
-const SET_PREVIOUS_SOURCE_TEXT = 'SET_PREVIOUS_SOURCE_TEXT';
-const SET_IS_FETCHING = 'SET_IS_FETCHING';
+const SET_SOURCE_LANGUAGE = "SET_SOURCE_LANGUAGE";
+const SET_DESTINATION_LANGUAGE = "SET_DESTINATION_LANGUAGE";
+const SET_SOURCE_TEXT = "SET_SOURCE_TEXT";
+const SET_DESTINATION_TEXT = "SET_DESTINATION_TEXT";
+const SET_SOURCE_SPEECH = "SET_SOURCE_SPEECH";
+const SET_DESTINATION_SPEECH = "SET_DESTINATION_SPEECH";
+const SET_IS_RECORDING = "SET_IS_RECORDING";
+const SET_IS_EDITING = "SET_IS_EDITING";
+const SWAP_LANGUAGES = "SWAP_LANGUAGES";
+const SET_IS_FETCHING = "SET_IS_FETCHING";
 
 // Reducer function
 const reducer = (state, action) => {
@@ -55,10 +54,8 @@ const reducer = (state, action) => {
         sourceText: state.destinationText,
         destinationText: state.sourceText,
       };
-    case SET_PREVIOUS_SOURCE_TEXT:
-      return { ...state, previousSourceText: state.sourceText };
     case SET_IS_FETCHING:
-        return {...state, isFetching: action.payload}
+      return { ...state, isFetching: action.payload };
     default:
       return state;
   }
@@ -69,38 +66,94 @@ export const TranslationContext = createContext();
 
 // Provider component
 export const TranslationProvider = ({ children }) => {
+
   const [state, dispatch] = useReducer(reducer, initialState);
   const sourceAudioRef = useRef(null);
   const destinationAudioRef = useRef(null);
+  const prevStateRef = useRef({});
 
-  const fetchTranslationAndVoice = async () => {
-    if (state.sourceText.trim() && state.sourceText !== state.previousSourceText) {
-      dispatch({type: 'SET_IS_FETCHING', payload : true})
-      const translation = await translateText(state.sourceText, state.sourceLanguage, state.destinationLanguage);
-    //   return Audio object made using URL object
-      const sourceVoice = await getVoiceForText(state.sourceText, state.sourceLanguage);
-      const destinationVoice = await getVoiceForText(translation, state.destinationLanguage);
-      sourceAudioRef.current  = sourceVoice
-      destinationAudioRef.current = destinationVoice
-      dispatch({ type: SET_DESTINATION_TEXT, payload: translation });
-      dispatch({ type: SET_SOURCE_SPEECH, payload: sourceVoice });
-      dispatch({ type: SET_DESTINATION_SPEECH, payload: destinationVoice });
-      dispatch({ type: SET_PREVIOUS_SOURCE_TEXT });
-      dispatch({type: SET_IS_FETCHING, payload : false})
+  const fetchTranslationOnLangChange = async () => {
+    console.log('Fetching Lang---------------------------------')
+    console.log("Prev State",prevStateRef.current)
+    console.log("Curr State: ",state)
+    console.log('Fetching Lang---------------------------------')
+
+    dispatch({ type: SET_IS_FETCHING, payload: true });
+
+    const prevState = prevStateRef.current;
+
+    if (prevState?.sourceLanguage != state.sourceLanguage && state.sourceText.trim() != '') {
+      const translation = await translateText(
+        state.sourceText,
+        prevState?.sourceLanguage,
+        state.sourceLanguage
+      );
+      dispatch({ type: SET_SOURCE_TEXT, payload: translation });
+      const voice = await getVoiceForText(
+        translation,
+        state.sourceLanguage
+      );
+      sourceAudioRef.current = voice;
     }
+    if (prevState?.destinationLanguage != state.destinationLanguage && state.destinationText.trim()  != '') {
+      const translation = await translateText(
+        state.destinationText,
+        prevState?.destinationLanguage,
+        state.destinationLanguage
+      );
+      dispatch({ type: SET_DESTINATION_TEXT, payload: translation });
+      const voice = await getVoiceForText(
+        translation,
+        state.destinationLanguage
+      );
+      destinationAudioRef.current = voice;
+    }
+    dispatch({ type: SET_IS_FETCHING, payload: false });
+    prevStateRef.current = state
   };
 
-  useEffect(() => {
-    // !state.isRecording && !state.isEditing
-    console.log(state.isRecording, state.isEditing)
-    if ( !state.isRecording && !state.isEditing) {
-      fetchTranslationAndVoice();
-    }
-  }, [state.isRecording, state.isEditing, state.sourceLanguage, state.destinationLanguage]);
+  const fetchTranslationOnTextChange = async () => {
+    if(!state.isEditing && !state.isRecording){
+      console.log('text Change')
+    dispatch({ type: SET_IS_FETCHING, payload: true });
 
-  // useEffect(()=>{
-  //   console.log(state)
-  // }, [state])
+    const prevState = prevStateRef.current;
+
+    if (
+      state.sourceText.trim() &&
+      prevState?.sourceText != state.sourceText &&
+      state.sourceText !== ""
+    ) {
+      const translation = await translateText(
+        state.sourceText,
+        state.sourceLanguage,
+        state.destinationLanguage
+      );
+      dispatch({ type: SET_DESTINATION_TEXT, payload: translation });
+      const sourceVoice = await getVoiceForText(
+        state.sourceText,
+        state.sourceLanguage
+      );
+      const destVoice = await getVoiceForText(
+        translation,
+        state.destinationLanguage
+      );
+      sourceAudioRef.current = sourceVoice;
+      destinationAudioRef.current = destVoice;
+    }
+    dispatch({ type: SET_IS_FETCHING, payload: false });
+    prevStateRef.current = state
+  }
+  };
+  useEffect(() => {
+    fetchTranslationOnLangChange();
+  }, [state.sourceLanguage, state.destinationLanguage]);
+
+  useEffect(() => {
+    if (!state.isEditing && !state.isRecording) {
+      fetchTranslationOnTextChange();
+    }
+  }, [state.isEditing, state.isRecording]);
 
   const playAudio = (audioRef) => {
     if (audioRef.current) {
@@ -111,22 +164,22 @@ export const TranslationProvider = ({ children }) => {
   const pauseAudio = (audioRef) => {
     if (audioRef.current) {
       audioRef.current.pause();
-    
     }
   };
 
   const resetAudio = (audioRef) => {
     if (audioRef.current) {
-      audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
   };
 
-  useEffect(()=>{
-    if(state.sourceText == ''){
-      dispatch({type:SET_DESTINATION_TEXT, payload: ''})
-    }
-  }, [state.sourceText])
+  // clear the destination text if source becomes empty
+
+  // useEffect(() => {
+  //   if (state.sourceText == "") {
+  //     dispatch({ type: SET_DESTINATION_TEXT, payload: "" });
+  //   }
+  // }, [state.sourceText]);
 
   return (
     <TranslationContext.Provider
@@ -135,7 +188,6 @@ export const TranslationProvider = ({ children }) => {
         dispatch,
         sourceAudioRef,
         destinationAudioRef,
-        fetchTranslationAndVoice,
         playAudio,
         pauseAudio,
         resetAudio,
@@ -145,5 +197,3 @@ export const TranslationProvider = ({ children }) => {
     </TranslationContext.Provider>
   );
 };
-
-

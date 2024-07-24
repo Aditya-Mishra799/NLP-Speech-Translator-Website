@@ -56,7 +56,7 @@ const SpeechRecorder = () => {
     return () => {
       recognition.stop();
     };
-  }, [isMicOn, state.sourceText, state.sourceLanguage, dispatch]);
+  }, [isMicOn]);
 
   return (
     <Box>

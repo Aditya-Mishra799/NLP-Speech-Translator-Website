@@ -82,7 +82,7 @@ const TranscriptionEditor = ({
     return () => {
       audioElement.removeEventListener("ended", handleEnded);
     };
-  }, [audioRef]);
+  }, [audioRef.current]);
 
   // translate the placeholder and 
   const lodingIndication = (
@@ -172,13 +172,13 @@ const TranscriptionEditor = ({
             <UtilityButton
               icon={<FaDeleteLeft />}
               onClick={() => setValue("")}
-              color="blue"
+              color="red"
               tooltip={"Clear text"}
             />
             <UtilityButton
               icon={<FaEdit />}
               onClick={handleEditText}
-              color="red"
+              color="blue"
               tooltip={"Edit text"}
             />
           </HStack>
