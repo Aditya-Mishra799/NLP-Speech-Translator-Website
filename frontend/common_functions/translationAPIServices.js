@@ -2,53 +2,52 @@ import { getApiEndpoints, endPoints } from "./apiEndPoints"
 
 const getOptions = async () => {
     try {
-        const url = getApiEndpoints(endPoints.langOption)
-        const response = await fetch(url)
-        if(!response.ok){
-            throw new Error('Error while fetching Language Options !!!')
-        }
-        const options = await response.json()
-        return options
+      const response = await fetch('/api/languages');
+      if (!response.ok) {
+        throw new Error('Error while fetching Language Options !!!');
+      }
+      const options = await response.json();
+      return options;
     } catch (error) {
-        console.error(error)
+      console.error(error);
     }
-}
+  };
+  
 
-const translateText = async (text, sourceLanguage, destinationLanguage) => {
+  const translateText = async (text, sourceLanguage, destinationLanguage) => {
     const requestBody = {
-        text: text,
-        source_lang: sourceLanguage,
-        dest_lang: destinationLanguage,
-     }
-    const url = getApiEndpoints(endPoints.translate)
+      text: text,
+      source_lang: sourceLanguage,
+      dest_lang: destinationLanguage,
+    };
+  
     try {
-        console.log('Request', requestBody)
-        const response = await fetch(url, {
-            method : 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body : JSON.stringify(requestBody)
-        })
-        if(!response.ok){
-            throw new Error('Error while fetching text translation !!!')
-        }
-        const responseData = await response.json()
-        console.log(responseData?.translated_text ?? '')
-        return responseData?.translated_text ?? ''
-
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error while fetching text translation !!!');
+      }
+  
+      const responseData = await response.json();
+      return responseData?.translated_text ?? '';
     } catch (error) {
-        console.error(error)
+      console.error(error);
     }
-}
+  };
+  
 
 const getVoiceForText = async (text, language) => {
     const requestBody = {
         text: text,
         lang: language,
      }
-     console.log(requestBody)
-    const url = getApiEndpoints(endPoints.textToSpeech)
+    const url = '/api/textToSpeech'
     try {
         const response = await fetch(url, {
             method : 'POST',
@@ -61,7 +60,6 @@ const getVoiceForText = async (text, language) => {
             throw new Error('Error while fetching Speech for text !!!')
         }
         const audioBlob = await response.blob();
-        console.log(audioBlob)
         const audioURL =  URL.createObjectURL(audioBlob);
         const audio = new Audio(audioURL)
         return audio

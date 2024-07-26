@@ -24,8 +24,7 @@ const TranslationPanel = () => {
       pauseAudio={pauseAudio}
       resetAudio={resetAudio}
       audioRef={sourceAudioRef}
-      isEditing={state.isEditing}
-      setEditing={(value) =>
+      setEditingListener ={(value) =>
         dispatch({ type: "SET_IS_EDITING", payload: value })
       }
       setValue={(value) =>

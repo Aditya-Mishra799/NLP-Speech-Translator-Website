@@ -25,6 +25,7 @@ const UtilityButton = ({
           fontSize={fontSize}
           colorScheme={color}
           p="2"
+          {...rest}
         />
         {isLoading ? (
           <CircularProgress

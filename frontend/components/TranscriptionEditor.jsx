@@ -3,7 +3,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  VStack,
   HStack,
   Heading,
   Text,
@@ -13,13 +12,14 @@ import {
 } from "@chakra-ui/react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { FaEdit } from "react-icons/fa";
-import { TiDeleteOutline } from "react-icons/ti";
 import { FaDeleteLeft } from "react-icons/fa6";
 import { HiSpeakerWave } from "react-icons/hi2";
 import { HiSpeakerXMark } from "react-icons/hi2";
 import { MdOutlineReplay } from "react-icons/md";
+import { FaPause } from "react-icons/fa6";
+import CopyButton from "./CopyButton";
 import UtilityButton from "./UtilityButton";
-
+import TranslateButton from "./TranslateButton";
 
 const TranscriptionEditor = ({
   isEditable = false,
@@ -29,13 +29,13 @@ const TranscriptionEditor = ({
   playAudio,
   pauseAudio,
   resetAudio,
-  setEditing,
-  isEditing = false,
+  setEditingListener,
   isLoding = false,
   title = "Editor",
   placeholder = "Please say something .....",
 }) => {
   const [isPlaying, setIsplaying] = useState(false);
+  const [isEditing, setEditing] = useState(false);
   const togglePlaying = () => setIsplaying(!isPlaying);
   const textareaRef = useRef(null);
   useEffect(() => {
@@ -48,15 +48,19 @@ const TranscriptionEditor = ({
   const handleEditText = () => {
     if (isEditable) {
       setEditing(true);
+      setEditingListener(true)
     }
   };
-  const handleClickOutside = (event) => {
-    if (textareaRef.current && !textareaRef.current.contains(event.target)) {
-      setEditing(false);
-    }
-  };
+
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (textareaRef.current && !textareaRef.current.contains(event.target)) {
+        setEditing(false);
+        setEditingListener(false)
+      }
+    };
     document.addEventListener("mousedown", handleClickOutside);
+    // Cleanup event listener on component unmount
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -64,7 +68,7 @@ const TranscriptionEditor = ({
 
   useEffect(() => {
     const textarea = textareaRef.current;
-    if (textarea) {
+    if (isEditing && textarea) {
       textarea.focus();
       textarea.setSelectionRange(value.length, value.length);
     }
@@ -84,35 +88,35 @@ const TranscriptionEditor = ({
     };
   }, [audioRef.current]);
 
-  // translate the placeholder and 
+  // translate the placeholder and
   const lodingIndication = (
-    <Box position={"absolute"} bottom="1" right={"1"}>
-      <CircularProgress
-        color="teal.200"
-        thickness={"4px"}
-        size="10"
-        isIndeterminate
-      />
-    </Box>
+    <CircularProgress
+      color="teal.200"
+      thickness={"4px"}
+      size="10"
+      isIndeterminate
+    />
   );
   return (
     <Box>
-      <Card w={{ base: "xs", sm : 'sm',  md: "sm", lg: 'md' }} pb={2.5}
-      _hover = {{
-        boxShadow : 'lg',
-      }}
+      <Card
+        w={{ base: "xs", sm: "sm", md: "sm", lg: "md" }}
+        pb={2.5}
+        _hover={{
+          boxShadow: "lg",
+        }}
       >
         <CardHeader>
           <HStack justify={"space-between"} w="full">
             <Heading size="md">{title}</Heading>
             <HStack justify={"space-between"}>
               <UtilityButton
-                icon={isPlaying ? <HiSpeakerXMark /> : <HiSpeakerWave />}
+                icon={isPlaying ? <FaPause /> : <HiSpeakerWave />}
                 onClick={togglePlaying}
                 isLoading={isLoding}
                 variant="outline"
                 color="teal"
-                tooltip={`${!isPlaying ? "Play" : "Stop"} speech.`}
+                tooltip={`${!isPlaying ? "Play" : "Pause"} speech.`}
               />
               <UtilityButton
                 icon={
@@ -167,25 +171,33 @@ const TranscriptionEditor = ({
             />
           )}
         </CardBody>
-        {isEditable ? (
-          <HStack position={"absolute"} bottom="1" left="1">
-            <UtilityButton
-              icon={<FaDeleteLeft />}
-              onClick={() => setValue("")}
-              color="red"
-              tooltip={"Clear text"}
-            />
-            <UtilityButton
-              icon={<FaEdit />}
-              onClick={handleEditText}
-              color="blue"
-              tooltip={"Edit text"}
-            />
-          </HStack>
-        ) : (
-          <></>
-        )}
-        {isLoding && !isEditable ? lodingIndication :<></>}
+        <HStack position={"absolute"} bottom="1" left="1">
+          {isEditable && (
+            <HStack>
+              <UtilityButton
+                icon={<FaDeleteLeft />}
+                onClick={() => setValue("")}
+                color="red"
+                tooltip={"Clear text"}
+              />
+              <UtilityButton
+                icon={<FaEdit />}
+                onClick={handleEditText}
+                color="blue"
+                tooltip={"Edit text"}
+              />
+            </HStack>
+          )}
+          <CopyButton text={value} />
+        </HStack>
+        {
+          <Box position={"absolute"} bottom="1" right={"1"}>
+            <HStack>
+              {isEditable && <TranslateButton />}
+              {isLoding && !isEditable && lodingIndication}
+            </HStack>
+          </Box>
+        }
       </Card>
     </Box>
   );

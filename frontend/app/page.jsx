@@ -23,8 +23,6 @@ const HomePage = () => {
         <LaguageSelector />
         <TranslationPanel />
         <SpeechRecognition />
-        
-        Home
     </Stack>
     </TranslationProvider>
   );

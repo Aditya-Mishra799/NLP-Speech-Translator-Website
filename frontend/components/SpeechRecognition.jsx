@@ -6,55 +6,59 @@ import { TranslationContext } from "./TranslationContext";
 const SpeechRecorder = () => {
   const [isMicOn, setIsMicOn] = useState(false);
   const { state, dispatch } = useContext(TranslationContext);
-
   const toggleRecording = () => {
-    if (!isMicOn) {
-      // If stopping the recording, add a space to separate new text
-      dispatch({
-        type: "SET_SOURCE_TEXT",
-        payload: (state.sourceText ?? '') + " ",
-      });
-    }
-    console.log(state);
     dispatch({
       type: "SET_IS_RECORDING",
       payload: !isMicOn,
     });
-
     setIsMicOn(!isMicOn);
   };
 
   useEffect(() => {
-    if (!isMicOn) return;
+    let recognition = null;
 
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = state.sourceLanguage;
-    recognition.continuous = true;
-    recognition.interimResults = true;
+    const startRecognition = () => {
+      recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = state.sourceLanguage;
+      recognition.continuous = true;
+      recognition.interimResults = true;
 
-    recognition.onresult = (event) => {
-      let finalTranscript = "";
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript + " ";
+      recognition.onresult = (event) => {
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            dispatch({
+              type: "APPEND_SOURCE_TEXT",
+              payload: event.results[i][0].transcript,
+            });
+          }
         }
-      }
-      if (finalTranscript) {
-        dispatch({
-          type: "SET_SOURCE_TEXT",
-          payload: (state.sourceText ?? '') + finalTranscript,
-        });
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+      };
+
+      recognition.start();
+    };
+
+    const stopRecognition = () => {
+      if (recognition) {
+        recognition.stop();
       }
     };
 
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
-    };
-
-    recognition.start();
+    if (isMicOn) {
+      dispatch({
+        type: "APPEND_SOURCE_TEXT",
+        payload: ' ',
+      });
+      startRecognition();
+    } else {
+      stopRecognition();
+    }
 
     return () => {
-      recognition.stop();
+      stopRecognition();
     };
   }, [isMicOn]);
 
