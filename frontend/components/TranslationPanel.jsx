@@ -30,7 +30,6 @@ const TranslationPanel = () => {
       setValue={(value) =>
         dispatch({ type: "SET_SOURCE_TEXT", payload: value })
       }
-      isLoding={state.isFetching}
     />
   );
 
@@ -43,7 +42,6 @@ const TranslationPanel = () => {
       pauseAudio={pauseAudio}
       resetAudio={resetAudio}
       audioRef={destinationAudioRef}
-      isLoding={state.isFetching}
     />
   );
   return (

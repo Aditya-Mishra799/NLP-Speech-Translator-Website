@@ -5,6 +5,7 @@ import { Stack, Text } from "@chakra-ui/react";
 import LaguageSelector from "@/components/LaguageSelector";
 import TranslationPanel from "@/components/TranslationPanel";
 import dynamic from 'next/dynamic';
+import 'regenerator-runtime/runtime'
 const SpeechRecognition = dynamic(() => import('@/components/SpeechRecognition'), {
   ssr: false,
 });
