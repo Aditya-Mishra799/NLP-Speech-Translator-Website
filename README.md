@@ -1,6 +1,6 @@
 
 
-# NLP Speech Recognition and Translation Project
+# NLP Speech Recognition and Translation Project [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Welcome to the NLP Speech Recognition and Translation Project!** 🌍🔊
 
@@ -196,7 +196,7 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature-branch`).
 5. Open a pull request.
 
-## License
+## License [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
