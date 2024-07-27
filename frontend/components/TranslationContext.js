@@ -92,6 +92,7 @@ export const TranslationProvider = ({ children }) => {
       prevState?.sourceLanguage != state.sourceLanguage &&
       state.sourceText.trim() != ""
     ) {
+      sourceAudioRef.current = null
       const translation = await translateText(
         state.sourceText,
         prevState?.sourceLanguage,
@@ -105,6 +106,7 @@ export const TranslationProvider = ({ children }) => {
       prevState?.destinationLanguage != state.destinationLanguage &&
       state.destinationText.trim() != ""
     ) {
+      destinationAudioRef.current = null;
       const translation = await translateText(
         state.destinationText,
         prevState?.destinationLanguage,
@@ -131,6 +133,8 @@ export const TranslationProvider = ({ children }) => {
         prevState?.sourceText != state.sourceText &&
         state.sourceText !== ""
       ) {
+        sourceAudioRef.current = null
+        destinationAudioRef.current = null
         const translation = await translateText(
           state.sourceText,
           state.sourceLanguage,

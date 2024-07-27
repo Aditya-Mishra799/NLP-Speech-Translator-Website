@@ -13,11 +13,17 @@ const UtilityButton = ({
   tooltip,
   ...rest
 }) => {
+  const loading = <CircularProgress
+  thickness={"6px"}
+  size="4"
+  isIndeterminate
+  color={loadColor}
+/> 
   return (
     <Tooltip label = {tooltip}>
       <Box position={"relative"}>
         <IconButton
-          icon={icon}
+          icon={isLoading ? loading  :icon}
           isRound={isRound}
           size="40"
           variant={variant}
@@ -27,17 +33,6 @@ const UtilityButton = ({
           p="2"
           {...rest}
         />
-        {isLoading ? (
-          <CircularProgress
-            thickness={"4px"}
-            size="42"
-            isIndeterminate
-            color={loadColor}
-            position="absolute"
-            top={"-1"}
-            left={"-1"}
-          /> 
-        ): <></>}
       </Box>
     </Tooltip>
   );
