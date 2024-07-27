@@ -2,71 +2,57 @@ import { Box } from "@chakra-ui/react";
 import React, { useEffect, useContext, useState } from "react";
 import RecorderMicButton from "./RecorderMicButton";
 import { TranslationContext } from "./TranslationContext";
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 
 const SpeechRecorder = () => {
-  const [isMicOn, setIsMicOn] = useState(false);
   const { state, dispatch } = useContext(TranslationContext);
-  const toggleRecording = () => {
-    dispatch({
-      type: "SET_IS_RECORDING",
-      payload: !isMicOn,
-    });
-    setIsMicOn(!isMicOn);
+  // Local state to maintain the cumulative transcript
+  const [prevSourceText, setPrevSourceText] = useState(state.sourceText);
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  const startListening = () => {
+    SpeechRecognition.startListening({ language: state.sourceLanguage });
+  };
+
+  const stopListening = () => {
+    SpeechRecognition.stopListening();
   };
 
   useEffect(() => {
-    let recognition = null;
-
-    const startRecognition = () => {
-      recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = state.sourceLanguage;
-      recognition.continuous = true;
-      recognition.interimResults = true;
-
-      recognition.onresult = (event) => {
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            dispatch({
-              type: "APPEND_SOURCE_TEXT",
-              payload: event.results[i][0].transcript,
-            });
-          }
-        }
-      };
-
-      recognition.onerror = (event) => {
-        console.error("Speech recognition error:", event.error);
-      };
-
-      recognition.start();
-    };
-
-    const stopRecognition = () => {
-      if (recognition) {
-        recognition.stop();
-      }
-    };
-
-    if (isMicOn) {
+    if (listening && transcript) {
       dispatch({
-        type: "APPEND_SOURCE_TEXT",
-        payload: ' ',
+        type: "SET_SOURCE_TEXT",
+        payload: prevSourceText + transcript,
       });
-      startRecognition();
-    } else {
-      stopRecognition();
     }
+  }, [transcript]);
 
-    return () => {
-      stopRecognition();
-    };
-  }, [isMicOn]);
+  useEffect(() => {
+    if (!listening) {
+      setPrevSourceText(state.sourceText + " ");
+    }
+  }, [listening, state.sourceText]);
+
+  useEffect(() => {
+    if (!listening) {
+      dispatch({ type: "SET_IS_RECORDING", payload: false });
+    } else {
+      dispatch({ type: "SET_IS_RECORDING", payload: true });
+    }
+  }, [listening]);
 
   return (
     <Box>
       <RecorderMicButton
-        isMicOn={isMicOn}
-        onClick={() => toggleRecording()}
+        isMicOn={listening}
+        onClick={listening ? stopListening : startListening}
       />
     </Box>
   );

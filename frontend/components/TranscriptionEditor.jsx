@@ -36,7 +36,11 @@ const TranscriptionEditor = ({
 }) => {
   const [isPlaying, setIsplaying] = useState(false);
   const [isEditing, setEditing] = useState(false);
-  const togglePlaying = () => setIsplaying(!isPlaying);
+  const togglePlaying = () => {
+    if(audioRef.current){
+      setIsplaying(!isPlaying)
+    }
+  }
   const textareaRef = useRef(null);
   useEffect(() => {
     if (isPlaying && audioRef.current) {
@@ -48,7 +52,7 @@ const TranscriptionEditor = ({
   const handleEditText = () => {
     if (isEditable) {
       setEditing(true);
-      setEditingListener(true)
+      setEditingListener(true);
     }
   };
 
@@ -56,7 +60,7 @@ const TranscriptionEditor = ({
     const handleClickOutside = (event) => {
       if (textareaRef.current && !textareaRef.current.contains(event.target)) {
         setEditing(false);
-        setEditingListener(false)
+        setEditingListener(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -142,7 +146,7 @@ const TranscriptionEditor = ({
           {!isEditing ? (
             <Tooltip label={isEditable ? "Double Click to edit" : null}>
               <Box
-                height={"44"}
+                height={{base: "56", md: '44'}}
                 onDoubleClick={handleEditText}
                 overflowY="scroll"
                 __css={{
@@ -166,7 +170,7 @@ const TranscriptionEditor = ({
               ref={textareaRef}
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              height="44"
+              height={{base: "56", md: '44'}}
               fontSize={"large"}
             />
           )}

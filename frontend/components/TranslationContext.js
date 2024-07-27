@@ -185,6 +185,8 @@ export const TranslationProvider = ({ children }) => {
   useEffect(() => {
     if (state.sourceText == "" && !state.isEditing) {
       dispatch({ type: SET_DESTINATION_TEXT, payload: "" });
+      destinationAudioRef.current = null
+      sourceAudioRef.current = null
     }
   }, [state.sourceText, state.destinationText]);
 
