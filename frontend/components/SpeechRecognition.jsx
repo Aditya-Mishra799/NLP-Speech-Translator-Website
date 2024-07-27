@@ -1,10 +1,11 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import React, { useEffect, useContext, useState } from "react";
 import RecorderMicButton from "./RecorderMicButton";
 import { TranslationContext } from "./TranslationContext";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
+
 
 const SpeechRecorder = () => {
   const { state, dispatch } = useContext(TranslationContext);
@@ -48,6 +49,13 @@ const SpeechRecorder = () => {
     }
   }, [listening]);
 
+  if (!browserSupportsSpeechRecognition) {
+    return (
+      <Text textAlign={"center"} color="red">
+        Your Browser does not support Speech Recognition !!!
+      </Text>
+    );
+  }
   return (
     <Box>
       <RecorderMicButton

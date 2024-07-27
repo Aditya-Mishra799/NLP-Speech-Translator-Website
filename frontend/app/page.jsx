@@ -4,8 +4,10 @@ import { TranslationProvider } from "@/components/TranslationContext";
 import { Stack, Text } from "@chakra-ui/react";
 import LaguageSelector from "@/components/LaguageSelector";
 import TranslationPanel from "@/components/TranslationPanel";
-import SpeechRecognition from "@/components/SpeechRecognition";
-
+import dynamic from 'next/dynamic';
+const SpeechRecognition = dynamic(() => import('@/components/SpeechRecognition'), {
+  ssr: false,
+});
 const HomePage = () => {
   return (
     <TranslationProvider>
