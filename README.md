@@ -1,4 +1,4 @@
-Here's the revised README file with corrections and clickable Table of Contents:
+
 
 # NLP Speech Recognition and Translation Project
 
