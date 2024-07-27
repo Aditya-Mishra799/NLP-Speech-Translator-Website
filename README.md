@@ -1,10 +1,12 @@
-Here's the revised README file with corrections and clickable Table of Contents:
+
 
 # NLP Speech Recognition and Translation Project
 
 **Welcome to the NLP Speech Recognition and Translation Project!** 🌍🔊
 
 In today's globalized world, effective communication across different languages is more important than ever. Our project addresses this need by providing a seamless and intuitive solution for real-time speech translation and text-to-speech conversion. Whether you're traveling, working with international teams, or learning a new language, our application is designed to make language barriers a thing of the past.
+
+![Project Screenshot](assets/project-image-desktop.png)
 
 ## Table of Contents
 
