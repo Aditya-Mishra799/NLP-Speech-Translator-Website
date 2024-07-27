@@ -9,8 +9,8 @@ import io
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000",  # Frontend URL
-    # Add more origins if needed
+    "http://localhost:3000",
+    "http://172.17.0.1:3000",
 ]
 
 app.add_middleware(

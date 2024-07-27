@@ -19,6 +19,7 @@ services:
     volumes:
       - ./frontend:/app
     environment:
-      - NEXT_PUBLIC_TRANSLATOR_API_URL=http://localhost:8000
+    # set the env variable to store url for backend,
+      - NEXT_PUBLIC_TRANSLATOR_API_URL=http://172.17.0.1:8000
     depends_on:
       - backend
